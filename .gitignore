@@ -1,0 +1,62 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# --- Virtualenvs ---
+.venv/
+venv/
+env/
+.python-version
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+
+# --- ML artifacts (do NOT commit large weights, checkpoints, datasets) ---
+# Keep results/notes; ignore binaries and runs.
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.onnx
+*.gguf
+*.npz
+*.npy
+*.h5
+*.tar
+*.tar.gz
+*.zip
+data/
+datasets/
+checkpoints/
+runs/
+wandb/
+mlruns/
+outputs/
+logs/
+*.log
+
+# --- Phase scratch (per-phase notebooks/scratch the curriculum keeps local) ---
+scratch/
+*.scratch.*
+
+# --- Coverage / profiling ---
+.coverage
+htmlcov/
+*.prof
