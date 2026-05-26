@@ -3,7 +3,8 @@
 A from-scratch LLM-mastery curriculum. Owner: Shreyas — and the **only** code
 author on this repo. The goal is to rebuild every artifact (autograd →
 transformer → inference server → agents → capstone) from a blank page when
-the curriculum is done.
+the curriculum is done. **Build-only:** every phase ships code + benchmark
+numbers; no math derivations are deliverables.
 
 Six tiers, executed shared-core-first:
 
@@ -38,7 +39,6 @@ Specs, validated test harnesses, and principal-engineer review only.
 local mentor contract (untracked)       mentor contract (auto-loaded by the coding agent)
 00_START_HERE.md            full philosophy & per-phase loop
 01_BUILD_PLAN.md            six-tier plan: what to ship, in what order
-02_MATH_REFERENCE.md        derivation targets and shape-check invariants (NOT answers)
 03_CAPSTONE_ARCHITECTURE.md Tier V: two systems + the load-bearing contract
 
 _meta/
@@ -58,4 +58,4 @@ phases/
 ## Status
 
 See [`_meta/STATUS.md`](./_meta/STATUS.md). Currently: **Tier 0 · Phase 0.1**
-(autograd from scratch), Part 0 = paper derivations before any engine code.
+(autograd from scratch), Part 1 = scalar autograd in `autograd.py`.

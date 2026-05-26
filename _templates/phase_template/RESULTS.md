@@ -10,8 +10,11 @@
 - torch oracle: <ran / not available>
 
 ## The key result of this phase
-<one paragraph: the load-bearing insight you proved. e.g. for 0.1: why softmax-CE
-collapses to (p - y)/N, and that the harness confirmed it to ~1e-16.>
+<one paragraph: the load-bearing thing you built and what the harness proved
+about it. e.g. for 0.1: the engine produces gradients matching central
+finite differences and PyTorch to numerical tolerance across linear,
+softmax-CE, and layernorm — including the (p − y)/N identity for the fused
+softmax-CE row, confirmed to ~1e-16 against the independent oracle.>
 
 ## Traps that bit me
 - <trap>: <how it manifested, how I found it, the fix>

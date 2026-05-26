@@ -7,7 +7,7 @@ Scaffold: `spec` = README written · `harness` = harness validated per protocol 
 
 | Tier · Phase | Tag | State | Spec | Harness | Artifact to ship | Notes |
 |---|---|---|---|---|---|---|
-| 0.1 Autograd | CORE | 🔨 | ✅ | ✅ | gradient-check suite + RESULTS.md | **CURRENT.** Part 0 = paper derivations FIRST |
+| 0.1 Autograd | CORE | 🔨 | ✅ | ✅ | gradient-check suite + RESULTS.md | **CURRENT.** Build-only; start at Part 1 |
 | 1.1 Transformer | CORE | ⬜ | ⬜ | ⬜ | generation from GPT-2 weights + tok/s | next |
 | 1.2 Architecture zoo | CORE | ⬜ | ⬜ | ⬜ | attn-variant writeup + KV deltas | |
 | 2.1 GPU/CUDA/kernels | INFRA | ⬜ | ⬜ | ⬜ | kernel vs cuBLAS + roofline | tail |
@@ -29,7 +29,7 @@ Scaffold: `spec` = README written · `harness` = harness validated per protocol 
 - `always_on/GAPS_LOG.md` — unproven assumptions / tolerated hacks. **Tier-VI fuel. Start now.**
 
 ## Current session pointer
-**Phase 0.1, Part 0 — derivations on paper (`DERIVATIONS.md`), before engine code.** The mentor reviews the math (hardest on *why* softmax-CE is clean) before any `autograd.py` is written.
+**Phase 0.1, Part 1 — scalar autograd in `autograd.py`.** Build-only project: no paper derivations are deliverables here or in any future phase. Any math the owner needs is done off-repo. Acceptance gates are entirely the `gradcheck.py` harness rows.
 
 ## Order (from 01_BUILD_PLAN.md)
 Shared core first: 0.1 → 1.1 → 1.2 → 2.3 → thin 4.3 → 3.2. Then the tail the pipeline heats up. Then capstone (5.0→5.1→5.2). Then 6.x. Until offers stabilize, run only the shared core.

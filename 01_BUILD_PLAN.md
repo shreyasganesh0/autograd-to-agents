@@ -52,7 +52,7 @@ Full spec in `03_CAPSTONE_ARCHITECTURE.md`. Two independently-excellent systems 
 0.1 → 1.1 → (1.2, 2.x). 2.1 precedes 2.3. 2.2 enables 3.1. 3.2 consumes 4.3 as reward oracle (build a thin eval inside 4.1, expand in 4.3). Capstone consumes 2.3 + 4.1–4.3 + 3.2.
 
 ## Definition of done
-1. Answer every Tier 0–V exam question cold (see `02_MATH_REFERENCE.md` for Tier 0/I).
+1. Every Tier 0–V phase's named build artifact is shipped (harness green, RESULTS.md published, stranger can rerun).
 2. Portfolio links: ≥3 paper reproductions w/ matching numbers; ≥2 merged OSS contributions (one infra, one agents); from-scratch artifacts with public benchmarks; the capstone (substitution benchmark + cross-seam RL curve).
 3. Critique a framework against your primitives + whiteboard a multi-GPU serving stack.
 4. `GAPS_LOG.md` has a live candidate you're attacking — ideally one shipped novel result.
