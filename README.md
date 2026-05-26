@@ -1,4 +1,4 @@
-# llm-from-scratch
+# autograd-to-agents
 
 A from-scratch LLM-mastery curriculum. Owner: Shreyas — and the **only** code
 author on this repo. The goal is to rebuild every artifact (autograd →
