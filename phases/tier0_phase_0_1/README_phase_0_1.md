@@ -8,6 +8,45 @@
 
 ---
 
+## Why this phase exists (goals, rationale, what carries forward)
+
+### The skill you're building
+
+An intuition for how gradients propagate through composed operations — deep enough that you can debug a 50-line attention bug or a numerically-unstable RL loss at the level of *"which Jacobian is wrong"* rather than *"the framework did something."* When you're staring at a loss that won't decrease three tiers from now, you want to be the person who reaches for the autograd internals, not the person who tries random hyperparameter changes.
+
+### Why "from scratch" is the right call here
+
+Autograd is the substrate every subsequent tier sits on. Treat it as a black box (let PyTorch do the gradients for you) and you'll spend the rest of the curriculum unable to reason about:
+
+- Why a custom CUDA kernel needs a custom backward (Tier 2.1 / FlashAttention).
+- Why a training loop diverges silently (Tier 3.1 pretraining, Tier 3.2 RL).
+- Why a fused op produces a different gradient than the unfused composition.
+- Why ZeRO can shard optimizer states across GPUs without changing the math (Tier 2.2).
+- Why a backward pass through a KV cache or a sampled token requires care (Tier 2.3, Tier 3.2).
+
+After this phase, the rest of the project stops having an opaque substrate underneath it. That's the unlock.
+
+### What carries forward to later tiers
+
+- **Graph + topological-order pattern.** Reappears in any system that composes operations — compiler IRs (torch.compile, XLA), dataflow systems, the agent harness's tool-call graph (Tier 4.1). You'll recognize the shape every time.
+- **Broadcasting backward.** The hardest correctness trap in this phase is exactly the same bug class as tensor-parallel gradient reduction (Tier 2.2) and stride math in a paged-KV allocator (Tier 2.3). Get it wrong here, get it wrong everywhere.
+- **Fused softmax-CE.** A numerically-stable op with a hand-derived backward, motivated by avoiding intermediate-tensor materialization. This is the warm-up pattern for FlashAttention (Tier 2.1), which fuses attention's softmax + matmul for the same reason.
+- **LayerNorm.** The spine of every transformer block. You'll touch it again in Tier 1.1 (transformer integration) and Tier 1.2 (the RMSNorm variant). Interviewers will ask you to defend your normalization choice; this phase is where you earn the answer.
+- **Independent oracle discipline.** The five-gate harness validation protocol you're working against here is the same discipline every later phase requires — finite differences here, full-recompute oracle for KV cache, brute-force exact search for HNSW, judge calibration for evals. The shape of "how you know your build is correct" is set here.
+
+### What good looks like
+
+- Your `Tensor` class has a small surface area. If you're adding a method per op, fine; if you're adding methods for helpers and utilities, the design is leaking.
+- Your `.backward()` has no per-op special-casing at the top level. Each op records its own local backward when it runs; `.backward()` just walks the graph and dispatches.
+- You can answer, without running the code: *"What happens if I call `.backward()` twice on the same output?"* and *"What happens if a single leaf parameter feeds two different losses summed together?"* Both are standard interview-attack questions for autograd implementations.
+- The numerical errors in your harness output are at the floor expected from `float64` + central differences (~1e-9 for linear ops, ~1e-7 for finite-diff through softmax-CE). If they're 1e-5 or worse but still under TOL, something is subtly wrong — investigate.
+
+### Why this is the shape of the deliverable
+
+A single `.py` module + a harness that proves every gradient. Autograd is the canonical *"small library, deep correctness invariants"* problem — the library is ~200 lines, but the bugs are silent (a wrong gradient still trains the network, just toward the wrong answer). The only honest way to know it works is an independent oracle (finite differences + PyTorch). Hence the harness, hence the `(p − y)/N` clean-form check on softmax-CE, hence the `float64` tolerance.
+
+---
+
 ## Exam questions this phase targets (build-proven)
 
 1. Implement reverse-mode autodiff for a `linear(x, W, b)` layer and pass a numerical gradient check (central finite differences in float64, and PyTorch where available).
@@ -82,23 +121,88 @@ The suite is provided; your job is to make **every row PASS** and then turn the 
 
 ## API contract (what `gradcheck.py` imports)
 
-Put your code in **`autograd.py`** next to the suite, exposing:
+Put your code in **`autograd.py`** next to the suite, exposing the names below. For each: signature, what it computes (the observable forward behavior — i.e. the spec), why it exists in any neural-network library, and what your backward must do. The backward *implementation* is yours to design; the backward *requirement* (the shape and the fact that it must exist) is part of the contract.
+
+### Scalar engine — `Value`
 
 ```
-Value(data: float)        .data (float, mutable)   .grad (float)   .backward()
-   + - * / **(const) and at least one of .tanh()/.relu()/.exp()
-
-Tensor(data: np.ndarray float64, requires_grad=True)
-   .data (np.ndarray, mutable in place)   .grad (np.ndarray | None)   .backward(grad=None)
-   + - *  (elementwise, broadcasting)   @ (matmul)   .sum(axis=None, keepdims=False)
-
-linear(x, W, b)               x:[N,In] W:[In,Out] b:[Out] -> [N,Out]
-softmax(x, axis=-1)           rows sum to 1
-cross_entropy(logits, targets) logits:[N,C] targets:int[N] -> scalar, MEAN of -log p[target]
-layernorm(x, gamma, beta, eps=1e-5)   normalize over last axis; gamma,beta:[D]
+Value(data: float)
+  .data : float (mutable)
+  .grad : float (0.0 initially; accumulated after .backward())
+  + - * /  and  ** const
+  at least one nonlinearity: .tanh() / .relu() / .exp()
+  .backward()
 ```
 
-Named differently? Edit the import shim at the top of `main()` in `gradcheck.py`. Semantics must match — especially: `cross_entropy` is the **mean** (the `(p−y)/N` oracle assumes it), and `.data` is **float64** (finite differences needs it).
+- **What it represents:** a single floating-point number that participates in a computation graph. When you do `c = a * b`, `c` is a new `Value` that remembers it was produced from `a` and `b` via a multiply.
+- **Why it exists:** the simplest possible autograd. Scalar reverse-mode is the educational core of the whole engine; once it works, the Tensor version is the same idea generalized to arrays.
+- **What backward must do:** calling `.backward()` on any node seeds that node's `.grad = 1.0` and then walks every ancestor in **reverse topological order**, populating their `.grad` slots. A node that's used twice (e.g. `f = a*b + a`) must **accumulate** both contributions to `a.grad` — assignment loses one of them silently.
+
+### Tensor engine — `Tensor`
+
+```
+Tensor(data: np.ndarray, requires_grad: bool = True)
+  .data : np.ndarray (float64, mutable in place)
+  .grad : np.ndarray (same shape as .data) or None before backward
+  + - *  (elementwise, with broadcasting)
+  @      (matrix multiply)
+  .sum(axis=None, keepdims=False)
+  .backward(grad=None)
+```
+
+- **What it represents:** an N-dimensional array that participates in a computation graph the same way `Value` does, but element-wise. Forward ops produce new `Tensor`s; backward fills in `.grad` for every input that has `requires_grad=True`.
+- **Why it exists:** real models work with batches of vectors, not scalars. Generalizing to N-D arrays introduces the load-bearing complication of this phase: **broadcasting**.
+- **What backward must do:** for a scalar output, `.backward()` defaults `grad` to 1.0 and propagates. The hard part: when a forward op **broadcast** an operand (e.g. `[N,D] + [D]` broadcast the `[D]` bias across the batch axis), the gradient flowing into that operand must be **reduced back down to its original shape** by summing over the broadcast axes. If you skip this reduction, the gradient shape doesn't match the data shape and either the harness fails or, worse, training silently learns the wrong thing.
+
+### NN primitives (compose Tensor ops so `.backward()` works automatically)
+
+These are not new graph nodes — they're functions that compose `+`, `*`, `@`, `.sum()` from your Tensor layer. If your Tensor backward is correct, the gradients through these come for free.
+
+#### `linear(x, W, b)`
+
+```
+x: [N, In]    W: [In, Out]    b: [Out]    →  [N, Out]
+```
+
+- **What it computes:** the affine transformation `y = xW + b`. Multiply the batched input by the weight matrix, then add the bias (broadcast across the batch).
+- **Why it exists:** every fully-connected layer in every neural network is this function. The transformer's MLP block is `linear` → activation → `linear`. The attention projections are `linear`s. The classifier head is a `linear`.
+- **What it forces you to debug:** matmul backward + broadcasting-add backward, composed. The bias gradient (`b.grad`) has shape `[Out]` but flows from a `[N, Out]` upstream gradient — that's the broadcast-reduce you have to get right.
+
+#### `softmax(x, axis=-1)`
+
+```
+x: [..., C]    →  [..., C]    rows sum to 1 along `axis`
+```
+
+- **What it computes:** `softmax(x)_i = exp(x_i) / sum_j exp(x_j)` along `axis`. Output values are in (0, 1) and sum to 1 along the chosen axis — a probability distribution.
+- **Why it exists:** the standard way to turn a vector of unnormalized scores (*logits*) into a probability distribution over classes. Used everywhere a model needs to produce a distribution: classifier outputs, next-token prediction in LLMs, attention weights inside the transformer.
+- **Numerical-stability requirement (part of the spec, not optional):** subtract the row max from `x` before exponentiating. Mathematically `softmax(x) == softmax(x - max(x))` (the constant cancels in the ratio), but without the subtraction `exp(x_i)` overflows to `inf` for moderately-sized inputs (`exp(710)` is already `inf` in float64). Every robust softmax implementation does this.
+
+#### `cross_entropy(logits, targets)`
+
+```
+logits: [N, C]    targets: int array [N], values in [0, C)    →  scalar
+```
+
+- **What it computes:** `mean_over_batch( -log p[target_i] )` where `p = softmax(logits, axis=-1)` and `target_i` is the integer class index for example `i`. Equivalently: take the softmax, look up the probability of the true class for each example, take negative log, average across the batch.
+- **Why it exists:** the standard loss function for classification. Measures how *surprised* the model is by the true label. Together with softmax, it's the output stage of essentially every classifier and every LLM (where "classes" = vocabulary tokens, so this is the next-token-prediction loss).
+- **Critical contract — `mean`, not `sum`:** the reduction is the **mean** (divide by batch size `N`). The harness's independent `(softmax(logits) − onehot(targets)) / N` oracle assumes this; if you implement sum-reduction, the row will fail by exactly a factor of `N` and you'll spend an hour staring at it.
+- **Why this one is famous:** the analytic gradient of softmax-CE through `logits` collapses to the clean form `(p − onehot(target)) / N`. The fused form is dramatically simpler than chain-ruling through softmax then cross-entropy separately, and is also more numerically stable (avoids computing `log(p_i)` for tiny `p_i`). The harness checks this clean form independently — when the `cross_entropy` row's `clean(p-y)/N` error is ~1e-16, you've empirically confirmed the identity.
+
+#### `layernorm(x, gamma, beta, eps=1e-5)`
+
+```
+x: [..., D]    gamma: [D]    beta: [D]    →  same shape as x
+```
+
+- **What it computes:** for each "row" of `x` (along the last axis), subtract the mean, divide by `sqrt(variance + eps)`, then element-wise multiply by `gamma` and add `beta`. Each row ends up with (approximately) zero mean and unit variance, then is rescaled and shifted by the learned per-feature parameters.
+- **Why it exists:** stabilizes training of deep networks by keeping each layer's input distribution well-behaved (no exploding/vanishing activations). Used pervasively in transformers — before/after every attention block and every MLP block. The `eps` prevents division by zero on flat rows. The `gamma` and `beta` give the network the freedom to *undo* the normalization if it wants to (so layernorm doesn't restrict expressivity).
+- **What makes the backward subtle:** the mean and variance of a row both depend on *every* element of that row, so perturbing one element shifts the mean and variance, which changes every element's normalized value. The gradient through the normalization step is therefore **not local element-wise** — each element's gradient depends on a sum across the row. Your backward has to account for this; getting the per-row reductions right is the load-bearing detail.
+- **What you'll do with it later:** Tier 1.1 wires it into a real transformer block. Tier 1.2 builds RMSNorm (which drops the mean-centering — only the divide-by-rms remains) and asks you to compare. Naming the difference precisely is a standard interview question.
+
+### Naming + execution
+
+Named differently in your code? Edit the import shim at the top of `main()` in `gradcheck.py`. Semantics must match — especially the `cross_entropy` mean reduction and `.data` being `float64` (the finite-difference oracle requires it).
 
 **Run:** `python3 gradcheck.py` → table of PASS/FAIL/SKIP, exit 0 iff no FAIL/ERROR.
 
