@@ -31,15 +31,19 @@ Specs, validated test harnesses, and principal-engineer review only.
 |---|---|
 | A fresh LLM picking up the mentor role | the local mentor contract → `_meta/STATUS.md` → the current `phases/tierX_phase_Y/` folder |
 | The owner resuming a build session | `_meta/STATUS.md` |
-| A reader trying to understand the philosophy | `00_START_HERE.md` → `01_BUILD_PLAN.md` |
+| The owner, building a phase offline | `BUILD_GUIDE.md` → `_meta/STATUS.md` |
+| A reader trying to understand the philosophy | `docs/00_start_here.md` → `docs/01_build_plan.md` |
 
 ## Repo map
 
 ```
-local mentor contract (untracked)       mentor contract (auto-loaded by the coding agent)
-00_START_HERE.md            full philosophy & per-phase loop
-01_BUILD_PLAN.md            six-tier plan: what to ship, in what order
-03_CAPSTONE_ARCHITECTURE.md Tier V: two systems + the load-bearing contract
+local mentor contract (untracked)       mentor contract (auto-loaded by the coding agent; the local contract → the local contract symlink)
+BUILD_GUIDE.md              owner-facing "you build, I guide" field guide — read offline
+
+docs/
+  00_start_here.md          full philosophy & per-phase loop
+  01_build_plan.md          six-tier plan: what to ship, in what order
+  02_capstone_architecture.md Tier V: two systems + the load-bearing contract
 
 _meta/
   STATUS.md                       current phase — source of truth
@@ -53,6 +57,11 @@ always_on/
 
 phases/
   tier0_phase_0_1/   autograd (current phase) — README + validated gradcheck.py
+  …                  one folder per phase as you reach it
+
+systems/             reserved homes for the Tier V capstone (empty until 5.0)
+  A_inference/       System A — inference/serving substrate
+  B_agent/           System B — backend-agnostic agentic tool
 ```
 
 ## Status

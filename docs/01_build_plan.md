@@ -31,7 +31,7 @@ Calibration: 🔨 full build · 🧩 reimplement core · 📖 conversant (no bui
 **4.3 Evals: the binding constraint 🔨 [CORE]✦** — task spec + sandboxed deterministic execution + partial credit → LLM-as-judge + calibration + failure modes → trajectory eval (tool-efficiency/recovery/cost) → reproduce a real-benchmark slice → CI regression gating. **Ship: rerunnable scorecard.** *Lead the portfolio with this — your fuzzing ablation discipline is the unfair advantage.*
 
 ## TIER V — Integration (the capstone) [CORE]
-Full spec in `03_CAPSTONE_ARCHITECTURE.md`. Two independently-excellent systems joined by a load-bearing contract.
+Full spec in `02_capstone_architecture.md`. Two independently-excellent systems joined by a load-bearing contract.
 **5.0 Capstone contract 🔨** — write the OpenAI-compatible interface + one deliberate leak (token timing/logprobs) BEFORE deepening either side; stub both ends. **Ship: contract spec + conformance harness validating both ends independently.**
 **5.1 Production layer 🔨/🧩** — 🔨 MCP server+client · 🔨 observability (traces/cost-latency/failure clustering) · 🧩 guardrails/permission boundary · 🧩 caching/rate-limits/degradation · 🧩 multi-agent orchestration · 📖 one framework, learned last, to critique. **Ship: deployed MCP system with observability.**
 **5.2 Capstone integration 🔨** — System A (your inference engine, optionally serving a model you RL-tuned) + System B (your agent in your fuzzing/DB domain) + the seam. **Ship: substitution benchmark (same agent: reference provider vs your engine — eval/TTFT/TPOT/throughput/$) + cross-seam RL curve (reward from B's evals tunes model served by A).** Done = benchmark runs green.

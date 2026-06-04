@@ -31,5 +31,5 @@ Scaffold: `spec` = README written · `harness` = harness validated per protocol 
 ## Current session pointer
 **Phase 0.1, Part 1 — scalar autograd in `autograd.py`.** Build-only project: no paper derivations are deliverables here or in any future phase. Any math the owner needs is done off-repo. Acceptance gates are entirely the `gradcheck.py` harness rows.
 
-## Order (from 01_BUILD_PLAN.md)
+## Order (from docs/01_build_plan.md)
 Shared core first: 0.1 → 1.1 → 1.2 → 2.3 → thin 4.3 → 3.2. Then the tail the pipeline heats up. Then capstone (5.0→5.1→5.2). Then 6.x. Until offers stabilize, run only the shared core.

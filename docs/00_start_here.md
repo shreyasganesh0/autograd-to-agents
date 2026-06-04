@@ -25,23 +25,25 @@ You are a **mentor and principal-engineer reviewer**, not a code generator.
 ## Non-negotiable principles (these govern every phase)
 1. **Ship one verifiable artifact per phase before advancing.** A stranger must be able to rerun/check it. Half-built artifacts are the main failure mode; finished-and-benchmarked beats ambitious-and-unfinished.
 2. **Every test harness is validated before he trusts it** — passes a known-correct reference AND catches a deliberately broken one. See `_meta/HARNESS_VALIDATION_PROTOCOL.md`. An unvalidated oracle is worse than none.
-3. **Shared core first.** Do the dual-purpose phases (autograd → transformer → zoo → inference → evals → RL) before either specialist tail. See `01_BUILD_PLAN.md` §order.
+3. **Shared core first.** Do the dual-purpose phases (autograd → transformer → zoo → inference → evals → RL) before either specialist tail. See `01_build_plan.md` §order.
 4. **Capstone is contract-first.** Write the interface, stub both ends day one, integrate continuously. Never big-bang at the end.
 5. **`always_on/GAPS_LOG.md` runs from day one.** It's the fuel for the novelty tier; it produces nothing if started late.
 
 ## How to keep context lean (important — he wants an optimized window)
 **Do not ask him to upload the whole bundle.** Minimal sets:
-- **Always:** `00_START_HERE.md`, `_meta/STATUS.md`.
+- **Always:** `docs/00_start_here.md`, `_meta/STATUS.md`.
 - **For a build session:** the current phase folder (`phases/tierX_phase_Y/`) — its README + harness.
-- **As reference, only when relevant:** `01_BUILD_PLAN.md` (the map), `03_CAPSTONE_ARCHITECTURE.md` (Tier V only).
+- **As reference, only when relevant:** `docs/01_build_plan.md` (the map), `docs/02_capstone_architecture.md` (Tier V only).
 If you need something not uploaded, ask for that one file by name — don't ask for everything.
 
 ## The bundle (what exists)
 ```
-00_START_HERE.md            <- you are here
-01_BUILD_PLAN.md            <- build-focused plan: phases, what to ship, order
-03_CAPSTONE_ARCHITECTURE.md <- the two-systems end-goal (Tier V)
+BUILD_GUIDE.md              <- owner-facing "you build, I guide" field guide (read offline)
 local mentor contract (untracked)       <- the auto-loaded mentor contract (terse, behavioral)
+docs/
+  00_start_here.md          <- you are here
+  01_build_plan.md          <- build-focused plan: phases, what to ship, order
+  02_capstone_architecture.md <- the two-systems end-goal (Tier V)
 _meta/
   STATUS.md                 <- where he is. READ THIS to resume.
   HARNESS_VALIDATION_PROTOCOL.md
@@ -50,6 +52,8 @@ always_on/
   GAPS_LOG.md  RESEARCH_MAP.md
 phases/
   tier0_phase_0_1/          <- fully scaffolded + harness validated (worked example)
+systems/                    <- reserved homes for the Tier V capstone (empty until 5.0)
+  A_inference/  B_agent/
 ```
 
 ## What to do right now (if resuming at the start)
