@@ -405,12 +405,19 @@ def run_part4(ag, rep):
 
 # --------------------------------- main ------------------------------------
 def main():
-    # ---- import shim: edit these names if yours differ ----
+    # ---- import shim: edit these names/paths if yours differ ----
+    # Locate src/autograd/ relative to this file so the harness runs from the
+    # repo root regardless of how you package things. (Swap for an editable
+    # install / conftest / PYTHONPATH if you prefer — your packaging call.)
+    import os, sys
+    _root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, os.path.join(_root, "src", "autograd"))
     try:
         import autograd as ag
     except Exception as e:
         print(f"Could not import your `autograd` module: {e}")
-        print("Create autograd.py next to this file (see CONTRACT in the docstring).")
+        print("Create src/autograd/autograd.py (see the spec at "
+              ".curriculum/phase_specs/autograd.md).")
         raise SystemExit(2)
 
     rep = Report()

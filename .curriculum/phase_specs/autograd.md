@@ -4,7 +4,7 @@
 
 **What you'll own afterward:** every gradient in the rest of this plan stops being magic. When attention or a fused kernel or an RL loss misbehaves three tiers from now, you debug it at the level of "which Jacobian is wrong," not "the framework did something."
 
-**Ground rule:** the spec + the conformance suite (`gradcheck.py`) are the contract. Designing the computation graph, the topological order, and the backward wiring is the entire point — that's where the understanding lives. Write every line yourself. Any math you need is yours to do off-repo; this project ships code, not derivations.
+**Ground rule:** the spec + the conformance suite (`tests/test_autograd.py`) are the contract. Designing the computation graph, the topological order, and the backward wiring is the entire point — that's where the understanding lives. Write every line yourself. Any math you need is yours to do off-repo; this project ships code, not derivations.
 
 ---
 
@@ -95,7 +95,7 @@ The owner has chosen to work out any math privately. The suite *empirically* con
 
 ## The build, in four parts (each gated independently by the suite)
 
-Run `python3 gradcheck.py` after every part. Unbuilt parts report **SKIP**; watch rows turn **PASS**.
+Run `python3 tests/test_autograd.py` after every part. Unbuilt parts report **SKIP**; watch rows turn **PASS**.
 
 ### Part 1 — Scalar autograd 🔨
 A `Value` scalar with a computation graph and `.backward()`. The reverse pass must visit nodes in reverse-topological order and **accumulate** (`+=`) gradients, so a value used twice gets both contributions.
@@ -119,9 +119,9 @@ The suite is provided; your job is to make **every row PASS** and then turn the 
 
 ---
 
-## API contract (what `gradcheck.py` imports)
+## API contract (what `tests/test_autograd.py` imports)
 
-Put your code in **`autograd.py`** next to the suite, exposing the names below. For each: signature, what it computes (the observable forward behavior — i.e. the spec), why it exists in any neural-network library, and what your backward must do. The backward *implementation* is yours to design; the backward *requirement* (the shape and the fact that it must exist) is part of the contract.
+Put your code in **`src/autograd/autograd.py`**, exposing the names below. The harness (`tests/test_autograd.py`) imports them by these names — wiring up how `tests/` resolves the `src/` module (a `conftest.py`, an editable install, or `PYTHONPATH`) is your packaging call. For each name: signature, what it computes (the observable forward behavior — i.e. the spec), why it exists in any neural-network library, and what your backward must do. The backward *implementation* is yours to design; the backward *requirement* (the shape and the fact that it must exist) is part of the contract.
 
 ### Scalar engine — `Value`
 
@@ -202,15 +202,15 @@ x: [..., D]    gamma: [D]    beta: [D]    →  same shape as x
 
 ### Naming + execution
 
-Named differently in your code? Edit the import shim at the top of `main()` in `gradcheck.py`. Semantics must match — especially the `cross_entropy` mean reduction and `.data` being `float64` (the finite-difference oracle requires it).
+Named differently in your code? Edit the import shim at the top of `main()` in `tests/test_autograd.py`. Semantics must match — especially the `cross_entropy` mean reduction and `.data` being `float64` (the finite-difference oracle requires it).
 
-**Run:** `python3 gradcheck.py` → table of PASS/FAIL/SKIP, exit 0 iff no FAIL/ERROR.
+**Run:** `python3 tests/test_autograd.py` → table of PASS/FAIL/SKIP, exit 0 iff no FAIL/ERROR.
 
 ---
 
 ## Acceptance criteria (phase-level "done")
 
-1. `python3 gradcheck.py` → **all rows PASS** (torch rows too, if torch is in your env), max rel error well under `1e-5` (you should see ~`1e-9`–`1e-10` for the linear/tensor ops; CE via finite-diff is looser, ~`1e-7`, which is expected).
+1. `python3 tests/test_autograd.py` → **all rows PASS** (torch rows too, if torch is in your env), max rel error well under `1e-5` (you should see ~`1e-9`–`1e-10` for the linear/tensor ops; CE via finite-diff is looser, ~`1e-7`, which is expected).
 2. `RESULTS.md` published with the table + a short note on the `cross_entropy` row. The suite is in the repo so a stranger can rerun it.
 
 ---
@@ -228,7 +228,7 @@ Named differently in your code? Edit the import shim at the top of `main()` in `
 
 ## What you hand back for review
 
-1. Your `autograd.py` + the `gradcheck.py` run output (the table).
+1. Your `autograd.py` + the `tests/test_autograd.py` run output (the table).
 2. One sentence per trap above: did it bite you, and how did you resolve it?
 
 I'll review principal-engineer style: correctness, any overstated "it works" claims, the interview attack on your design (e.g., "what happens if a leaf feeds two different losses?"), and the next upgrade. Then we advance to Phase 1.1.

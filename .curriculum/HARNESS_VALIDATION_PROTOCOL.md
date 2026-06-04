@@ -2,7 +2,7 @@
 
 **No test harness is trusted until it has caught a known-correct implementation passing AND a known-broken implementation failing.** An unvalidated oracle gives false green or false red; either one corrupts the whole learning loop. This protocol is non-negotiable and applies to every phase.
 
-This is exactly the loop used to validate `gradcheck.py` (write harness → write a throwaway correct reference → confirm all PASS → confirm graceful SKIP/FAIL on incomplete/broken → delete reference). Repeat it for every phase.
+This is exactly the loop used to validate `tests/test_autograd.py` (write harness → write a throwaway correct reference → confirm all PASS → confirm graceful SKIP/FAIL on incomplete/broken → delete reference). Repeat it for every phase.
 
 ## The five gates (a harness is "validated" only when all five pass)
 

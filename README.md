@@ -1,70 +1,61 @@
-# autograd-to-agents
+# scratchstack
 
-A from-scratch LLM-mastery curriculum. Owner: Shreyas — and the **only** code
-author on this repo. The goal is to rebuild every artifact (autograd →
-transformer → inference server → agents → capstone) from a blank page when
-the curriculum is done. **Build-only:** every phase ships code + benchmark
-numbers; no math derivations are deliverables.
+From-scratch implementations of modern LLM and agent infrastructure internals —
+**no frameworks, every component built and benchmarked from a blank file.**
+Autograd, transformers, inference serving, and agent harnesses, written by hand
+to understand them at the level of "which Jacobian / which allocation / which
+scheduler decision is wrong," not "the library did something."
 
-Six tiers, executed shared-core-first:
-
-```
-Tier 0  Math → Code        autograd
-Tier I  Internals          transformer · architecture zoo
-Tier II Systems            kernels · distributed training · inference server (System A)
-Tier III Capability        data + pretraining · post-training & RL · interp
-Tier IV Agents             harness (System B) · memory & retrieval · evals
-Tier V  Capstone           A + B joined by an OpenAI-compatible contract + one deliberate leak
-Tier VI Novelty            falsifiable result, fed by always_on/GAPS_LOG.md
-```
-
-## For any AI collaborator landing on this repo
-
-**Read the local mentor contract before touching anything.** It is the mentor
-contract — auto-loaded by the coding agent, also surfaced as the local mentor contract for other
-agents. Headline rule: you do not write solution code for this repo, ever.
-Specs, validated test harnesses, and principal-engineer review only.
-
-## Where to start
-
-| You are... | Read in this order |
-|---|---|
-| A fresh LLM picking up the mentor role | the local mentor contract → `_meta/STATUS.md` → the current `phases/tierX_phase_Y/` folder |
-| The owner resuming a build session | `_meta/STATUS.md` |
-| The owner, building a phase offline | `BUILD_GUIDE.md` → `_meta/STATUS.md` |
-| A reader trying to understand the philosophy | `docs/00_start_here.md` → `docs/01_build_plan.md` |
-
-## Repo map
-
-```
-local mentor contract (untracked)       mentor contract (auto-loaded by the coding agent; the local contract → the local contract symlink)
-BUILD_GUIDE.md              owner-facing "you build, I guide" field guide — read offline
-
-docs/
-  00_start_here.md          full philosophy & per-phase loop
-  01_build_plan.md          six-tier plan: what to ship, in what order
-  02_capstone_architecture.md Tier V: two systems + the load-bearing contract
-
-_meta/
-  STATUS.md                       current phase — source of truth
-  HARNESS_VALIDATION_PROTOCOL.md  five gates every harness must pass
-
-_templates/phase_template/   scaffold for new phases (README + RESULTS)
-
-always_on/
-  GAPS_LOG.md     Tier-VI fuel — open from day one
-  RESEARCH_MAP.md living taxonomy across architectures, training, inference, RL, agents, evals, interp
-
-phases/
-  tier0_phase_0_1/   autograd (current phase) — README + validated gradcheck.py
-  …                  one folder per phase as you reach it
-
-systems/             reserved homes for the Tier V capstone (empty until 5.0)
-  A_inference/       System A — inference/serving substrate
-  B_agent/           System B — backend-agnostic agentic tool
-```
+The discipline is constant across components: each ships **one verifiable
+artifact** (a benchmark, a generation, a scorecard) checked by an **independent
+oracle** before it counts as done. Green-but-unproven doesn't ship.
 
 ## Status
 
-See [`_meta/STATUS.md`](./_meta/STATUS.md). Currently: **Tier 0 · Phase 0.1**
-(autograd from scratch), Part 1 = scalar autograd in `autograd.py`.
+Implementing the **autograd engine** (`src/autograd/`) — reverse-mode autodiff
+with broadcasting, plus the NN primitives (linear / softmax / cross-entropy /
+layernorm) built on top of it. Verified by an independent gradient-check oracle
+(central finite differences + PyTorch cross-check) in `tests/`.
+
+## Roadmap
+
+Built in dependency order; each line is a standalone, benchmarked deliverable.
+
+| Component | What it is | Proof it works |
+|---|---|---|
+| **autograd** | reverse-mode autodiff + NN primitives | gradients match finite-diff & PyTorch |
+| **transformer** | BPE → attention → GPT block → sampling; loads GPT-2 weights | coherent generation from real weights + tok/s |
+| **architecture variants** | RoPE · GQA/MQA · RMSNorm/SwiGLU · MoE routing | measured KV deltas + RoPE extrapolation curve |
+| **inference serving** | KV cache → continuous batching → paged KV; OpenAI-compatible API | throughput/latency table vs a reference server |
+| **post-training / RL** | SFT → reasoning → preference opt → PPO/GRPO on a verifiable reward | before/after eval curves |
+| **agent harness** | ReAct → tool dispatch → context engineering → sub-agents | completes an over-context task, trajectories logged |
+| **retrieval / memory** | brute-force vector search → HNSW → RAG → episodic memory | recall@k / latency vs baseline |
+| **evals** | sandboxed scoring → judge calibration → trajectory eval → CI gating | rerunnable scorecard |
+
+The serving engine and the agent harness are substantial enough to graduate into
+their own standalone repositories once they have content; this repo holds the
+foundational internals and the work in progress.
+
+## Layout
+
+```
+src/        hand-written implementations (one package per component)
+  autograd/   reverse-mode autodiff + NN primitives  (current)
+tests/      independent-oracle harnesses (test_<component>.py)
+docs/        design notes (added as components land)
+```
+
+## Running the checks
+
+```
+python3 tests/test_autograd.py     # prints a PASS/FAIL/SKIP table; exit 0 iff no FAIL
+```
+
+Unbuilt parts report `SKIP`, so the harness is runnable from the first commit of a
+component and you watch rows go green as it's built.
+
+## AI collaboration
+
+Implementation code in `src/` is authored by hand by the maintainer. The
+conventions for AI assistants working in this repo (they may write tests/docs and
+review, never implementation) are in the local mentor contract.

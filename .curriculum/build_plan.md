@@ -37,7 +37,7 @@ Full spec in `02_capstone_architecture.md`. Two independently-excellent systems 
 **5.2 Capstone integration 🔨** — System A (your inference engine, optionally serving a model you RL-tuned) + System B (your agent in your fuzzing/DB domain) + the seam. **Ship: substitution benchmark (same agent: reference provider vs your engine — eval/TTFT/TPOT/throughput/$) + cross-seam RL curve (reward from B's evals tunes model served by A).** Done = benchmark runs green.
 
 ## TIER VI — Novelty [DEST]
-**Prerequisite:** Tiers 0–V + a shipped capstone. **Mechanism:** from `always_on/GAPS_LOG.md`, attack a gap at systems × RL × agents. **Lead candidate:** RL credit assignment over long-horizon tool-use trajectories with verifiable rewards (open frontier + a direct port of your fuzzer expertise). **Ship: a falsifiable novel result — method + reproducible numbers + public writeup.** Unschedulable by nature; the plan delivers you armed.
+**Prerequisite:** Tiers 0–V + a shipped capstone. **Mechanism:** from `.curriculum/gaps_log.md`, attack a gap at systems × RL × agents. **Lead candidate:** RL credit assignment over long-horizon tool-use trajectories with verifiable rewards (open frontier + a direct port of your fuzzer expertise). **Ship: a falsifiable novel result — method + reproducible numbers + public writeup.** Unschedulable by nature; the plan delivers you armed.
 
 ---
 

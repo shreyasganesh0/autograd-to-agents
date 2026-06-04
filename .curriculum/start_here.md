@@ -16,7 +16,7 @@ You are a **mentor and principal-engineer reviewer**, not a code generator.
 - **No math as a deliverable.** This is a build-only project. Phases ship code + benchmark numbers, not derivations. Do not ask for `DERIVATIONS.md`, do not write `DERIVATIONS.md`, do not require him to "explain why X collapses to Y" as a hand-back. He handles any math privately, off-repo. The harness empirically verifies correctness — that's the only acceptance gate.
 
 ## The per-phase loop
-1. He says **"scaffold Tier X, Phase Y"** (or you're resuming a phase — check `_meta/STATUS.md`).
+1. He says **"scaffold Tier X, Phase Y"** (or you're resuming a phase — check `.curriculum/STATUS.md`).
 2. You give the README + a validated harness + acceptance criteria + which exam questions it targets. **No solution code.**
 3. He builds from scratch.
 4. He pastes back code + harness output + benchmark numbers.
@@ -24,39 +24,42 @@ You are a **mentor and principal-engineer reviewer**, not a code generator.
 
 ## Non-negotiable principles (these govern every phase)
 1. **Ship one verifiable artifact per phase before advancing.** A stranger must be able to rerun/check it. Half-built artifacts are the main failure mode; finished-and-benchmarked beats ambitious-and-unfinished.
-2. **Every test harness is validated before he trusts it** — passes a known-correct reference AND catches a deliberately broken one. See `_meta/HARNESS_VALIDATION_PROTOCOL.md`. An unvalidated oracle is worse than none.
+2. **Every test harness is validated before he trusts it** — passes a known-correct reference AND catches a deliberately broken one. See `.curriculum/HARNESS_VALIDATION_PROTOCOL.md`. An unvalidated oracle is worse than none.
 3. **Shared core first.** Do the dual-purpose phases (autograd → transformer → zoo → inference → evals → RL) before either specialist tail. See `01_build_plan.md` §order.
 4. **Capstone is contract-first.** Write the interface, stub both ends day one, integrate continuously. Never big-bang at the end.
-5. **`always_on/GAPS_LOG.md` runs from day one.** It's the fuel for the novelty tier; it produces nothing if started late.
+5. **`.curriculum/gaps_log.md` runs from day one.** It's the fuel for the novelty tier; it produces nothing if started late.
 
 ## How to keep context lean (important — he wants an optimized window)
 **Do not ask him to upload the whole bundle.** Minimal sets:
-- **Always:** `docs/00_start_here.md`, `_meta/STATUS.md`.
-- **For a build session:** the current phase folder (`phases/tierX_phase_Y/`) — its README + harness.
-- **As reference, only when relevant:** `docs/01_build_plan.md` (the map), `docs/02_capstone_architecture.md` (Tier V only).
+- **Always:** `.curriculum/start_here.md`, `.curriculum/STATUS.md`.
+- **For a build session:** the current component's spec (`.curriculum/phase_specs/<component>.md`) + its harness (`tests/test_<component>.py`).
+- **As reference, only when relevant:** `.curriculum/build_plan.md` (the map), `.curriculum/capstone_architecture.md` (Tier V only).
 If you need something not uploaded, ask for that one file by name — don't ask for everything.
 
-## The bundle (what exists)
+## The layout (what exists)
 ```
-BUILD_GUIDE.md              <- owner-facing "you build, I guide" field guide (read offline)
-local mentor contract (untracked)       <- the auto-loaded mentor contract (terse, behavioral)
-docs/
-  00_start_here.md          <- you are here
-  01_build_plan.md          <- build-focused plan: phases, what to ship, order
-  02_capstone_architecture.md <- the two-systems end-goal (Tier V)
-_meta/
+PUBLIC (reads as a real from-scratch repo):
+  README.md                 <- the system + roadmap (no curriculum framing)
+  local mentor contract (untracked)     <- terse auto-loaded authorship policy
+  src/<component>/          <- hand-written implementations; artifacts accrete here
+  tests/test_<component>.py <- independent-oracle harnesses
+
+PRIVATE (the planning spine — this directory):
+.curriculum/
+  start_here.md             <- you are here
+  CONTRACT.md               <- full AI operating manual (the local contract is the terse copy)
   STATUS.md                 <- where he is. READ THIS to resume.
+  build_plan.md             <- the roadmap: components, what to ship, order
+  capstone_architecture.md  <- the two-systems end-goal (engine + agent + contract)
+  BUILD_GUIDE.md            <- owner-facing "you build, I guide" field guide
   HARNESS_VALIDATION_PROTOCOL.md
-_templates/phase_template/  <- README + RESULTS templates for new phases (includes a Prerequisites section)
-always_on/
-  GAPS_LOG.md  RESEARCH_MAP.md
-phases/
-  tier0_phase_0_1/          <- fully scaffolded + harness validated (worked example)
-systems/                    <- reserved homes for the Tier V capstone (empty until 5.0)
-  A_inference/  B_agent/
+  phase_specs/<component>.md      <- the spec for each component (the build contract)
+  harness_notes/<component>.md     <- validation evidence per harness
+  templates/                       <- scaffolds for a new spec + results writeup
+  gaps_log.md  research_map.md     <- novelty fuel + living taxonomy
 ```
 
 ## What to do right now (if resuming at the start)
-He is at **Tier 0 · Phase 0.1 (autograd)**, **Part 1 = scalar autograd in `autograd.py`**. This is a build-only project — there is no paper-derivations step. Point him at `phases/tier0_phase_0_1/README_phase_0_1.md` (which now has a Prerequisites section defining `Tensor`, `.backward()`, broadcasting, etc., for someone with no PyTorch/numpy background) and the validated `gradcheck.py`. Acceptance is purely "every harness row PASSes."
+He is at the **autograd** component, **Part 1 = scalar autograd in `src/autograd/`**. This is a build-only project — there is no paper-derivations step. Point him at `.curriculum/phase_specs/autograd.md` (which has a Prerequisites section defining `Tensor`, `.backward()`, broadcasting, etc., for someone with no PyTorch/numpy background) and the validated `tests/test_autograd.py`. Acceptance is purely "every harness row PASSes."
 
 If `STATUS.md` shows a later phase, follow that instead — `STATUS.md` is the source of truth, this section is only the default.

@@ -27,7 +27,7 @@ So you never burn a turn asking for something I'm contractually bound to refuse:
 
 The hook at the local pre-write guard hook enforces the code half of
 this at the tool layer. If you ever see me try to write a solution `.py` under
-`phases/`, the hook should stop it — and if it didn't, I already broke the
+`src/`, the hook should stop it — and if it didn't, I already broke the
 contract. Hold me to it.
 
 ---
@@ -35,7 +35,7 @@ contract. Hold me to it.
 ## The loop (per phase)
 
 1. **Start a phase.** Tell me *"scaffold Tier X, Phase Y"* (or *"resume"* — then I
-   read `_meta/STATUS.md` for where you are). I hand you a README + a **validated**
+   read `.curriculum/STATUS.md` for where you are). I hand you a README + a **validated**
    harness + acceptance criteria + which exam questions it proves.
 2. **Build it offline.** From a blank file. Run the harness after each part —
    unbuilt parts report `SKIP`, finished parts flip to `PASS`. This guide + the
@@ -60,7 +60,7 @@ block than handing it over), and not after silently working around it:
   review style hunts for.
 - **You need a harness validated** before you build against it. Never trust an
   oracle that hasn't passed a known-correct ref AND caught a known-broken one
-  (the five gates in `_meta/HARNESS_VALIDATION_PROTOCOL.md`).
+  (the five gates in `.curriculum/HARNESS_VALIDATION_PROTOCOL.md`).
 - **Phase looks done — you want the review** before advancing. Paste code +
   full harness table + benchmark numbers. Green tests are necessary, not
   sufficient; I'll pose the interview attack and name the next upgrade.
@@ -71,9 +71,9 @@ block than handing it over), and not after silently working around it:
   repo.
 - **You found a gap worth logging** — an unproven assumption, a hack the field
   tolerates, a "breaks at X." That's Tier-VI fuel; we log it in
-  `always_on/GAPS_LOG.md` as you go, not at the end.
+  `.curriculum/gaps_log.md` as you go, not at the end.
 
-When you come back, the lean context is: `_meta/STATUS.md` + the current phase
+When you come back, the lean context is: `.curriculum/STATUS.md` + the current phase
 folder. Don't re-upload the whole repo — I'll ask for a specific file by name if
 I need one.
 
@@ -107,7 +107,7 @@ If you've done 1–6 and you're still blocked, that's a real trigger. Come back.
 ## Phase map (read-only — your offline compass)
 
 Every phase ships **one** verifiable artifact. No phase is "done" without it.
-This mirrors `docs/01_build_plan.md`; it's here so you can navigate offline
+This mirrors `.curriculum/build_plan.md`; it's here so you can navigate offline
 without spoilers. It is a *map*, not a spec — you get the real spec one phase at
 a time, when you reach it.
 
@@ -141,22 +141,25 @@ this core.** Then extend the tail the pipeline heats up (infra: `2.1 → 2.2 →
 `0.1 → 1.1 → (1.2, 2.x)` · `2.1` precedes `2.3` · `2.2` enables `3.1` · `3.2`
 consumes `4.3` as its reward oracle (build a thin eval inside `4.1`, expand in
 `4.3`) · the capstone consumes `2.3 + 4.1–4.3 + 3.2`. The capstone's two systems
-land in `systems/A_inference/` and `systems/B_agent/`, which stay empty until 5.0.
+(the inference engine and the agent) graduate into their own standalone repos at
+the 2.3 / 4.1 boundaries; you don't reserve homes for them early.
 
 ---
 
 ## Where state lives (how to resume cold)
 
-1. **`_meta/STATUS.md`** — the source of truth for which phase you're in and its
+1. **`.curriculum/STATUS.md`** — the source of truth for which phase you're in and its
    state. Read this first every time. Never infer state from filenames or git log.
-2. **The current phase folder** `phases/tierX_phase_Y/` — its README + harness.
-3. **`always_on/`** — `GAPS_LOG.md` (Tier-VI fuel) and `RESEARCH_MAP.md`
+2. **The current component** — its spec `.curriculum/phase_specs/<component>.md`,
+   its code home `src/<component>/`, and its harness `tests/test_<component>.py`.
+3. **`.curriculum/gaps_log.md`** (novelty fuel) and **`.curriculum/research_map.md`**
    (taxonomy). Open from day one; never "done."
 
 Deeper background, only if 1–2 don't answer the question:
-`docs/00_start_here.md` (full philosophy) · `docs/01_build_plan.md` (the map +
-rationale) · `docs/02_capstone_architecture.md` (Tier V only). The mentor
-contract you're holding me to is the local mentor contract.
+`.curriculum/start_here.md` (full philosophy) · `.curriculum/build_plan.md` (the map +
+rationale) · `.curriculum/capstone_architecture.md` (Tier V only). The authorship
+policy you're holding me to is the local mentor contract; the
+full operating manual is `.curriculum/CONTRACT.md`.
 
 ---
 
@@ -175,6 +178,6 @@ contract you're holding me to is the local mentor contract.
 ---
 
 *Current phase: Tier 0 · Phase 0.1 (autograd), Part 1 = scalar autograd in
-`autograd.py`. Open `phases/tier0_phase_0_1/README_phase_0_1.md` and start from a
-blank file. Run `python3 gradcheck.py` after each part and watch the rows go
+`autograd.py`. Open `.curriculum/phase_specs/autograd.md` and start from a
+blank file. Run `python3 tests/test_autograd.py` after each part and watch the rows go
 green.*

@@ -52,7 +52,7 @@ outputs/
 logs/
 *.log
 
-# --- Phase scratch (per-phase notebooks/scratch the curriculum keeps local) ---
+# --- Local scratch (notebooks / experiments kept out of the tree) ---
 scratch/
 *.scratch.*
 

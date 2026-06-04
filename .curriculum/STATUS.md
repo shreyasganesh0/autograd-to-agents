@@ -25,11 +25,11 @@ Scaffold: `spec` = README written · `harness` = harness validated per protocol 
 | 6.x Novelty | DEST | ⬜ | — | — | falsifiable novel result | fed by GAPS_LOG |
 
 ## Always-on (open today, never "done")
-- `always_on/RESEARCH_MAP.md` — taxonomy, updated as you read.
-- `always_on/GAPS_LOG.md` — unproven assumptions / tolerated hacks. **Tier-VI fuel. Start now.**
+- `.curriculum/research_map.md` — taxonomy, updated as you read.
+- `.curriculum/gaps_log.md` — unproven assumptions / tolerated hacks. **Tier-VI fuel. Start now.**
 
 ## Current session pointer
-**Phase 0.1, Part 1 — scalar autograd in `autograd.py`.** Build-only project: no paper derivations are deliverables here or in any future phase. Any math the owner needs is done off-repo. Acceptance gates are entirely the `gradcheck.py` harness rows.
+**Phase 0.1, Part 1 — scalar autograd in `src/autograd/autograd.py`.** Build-only project: no paper derivations are deliverables here or in any future phase. Any math the owner needs is done off-repo. Acceptance gates are entirely the `tests/test_autograd.py` harness rows.
 
-## Order (from docs/01_build_plan.md)
+## Order (from .curriculum/build_plan.md)
 Shared core first: 0.1 → 1.1 → 1.2 → 2.3 → thin 4.3 → 3.2. Then the tail the pipeline heats up. Then capstone (5.0→5.1→5.2). Then 6.x. Until offers stabilize, run only the shared core.
