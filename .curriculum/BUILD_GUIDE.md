@@ -25,7 +25,7 @@ So you never burn a turn asking for something I'm contractually bound to refuse:
 | The **interview attack** on your design, and the next upgrade | Math derivations as a deliverable — this is build-only; any math you do is yours, off-repo |
 | A **standalone explanation** in chat when you're stuck on a concept | That same explanation written into the repo |
 
-The hook at the local pre-write guard hook enforces the code half of
+The local pre-write guard hook enforces the code half of
 this at the tool layer. If you ever see me try to write a solution `.py` under
 `src/`, the hook should stop it — and if it didn't, I already broke the
 contract. Hold me to it.
