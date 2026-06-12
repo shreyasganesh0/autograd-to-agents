@@ -9,9 +9,9 @@ process. Nothing here is a build artifact; it's how the build is driven.
 
 1. **`STATUS.md`** — current component + its state. Source of truth; read first.
 2. **`CONTRACT.md`** — the operating manual for the AI collaborator (what to
-   produce, what never to, review style). The terse auto-loaded version is the
+   produce, what never to, review style). The terse auto-loaded version is
    the local mentor contract.
-3. **`start_here.md`** — full philosophy and the per-phase loop.
+3. **`start_here.md`** — orientation card: who, the collaboration shape, read order.
 4. **`build_plan.md`** — the component roadmap, order, and dependencies.
 5. **`capstone_architecture.md`** — the two-systems end goal (engine + agent +
    contract).
@@ -22,16 +22,16 @@ process. Nothing here is a build artifact; it's how the build is driven.
 ```
 STATUS.md                       current state (read first)
 CONTRACT.md                     AI operating manual (full; the local contract is the terse copy)
-start_here.md                   philosophy + per-phase loop
+start_here.md                   orientation card for a fresh instance
 build_plan.md                   component roadmap, order, dependencies
 capstone_architecture.md        Tier V: engine + agent + the load-bearing contract
 BUILD_GUIDE.md                  maintainer-facing field guide
 HARNESS_VALIDATION_PROTOCOL.md  the five gates every tests/ harness must pass
-phase_specs/<component>.md       the spec for each component (the contract for the build)
+phase_specs/<component>.md       requirements brief per component (the contract for the build)
 harness_notes/<component>.md     validation evidence for each tests/ harness
-templates/                       scaffolds for a new component spec + results writeup
+templates/                       scaffolds for a new requirements brief + results writeup
 gaps_log.md                      unproven assumptions / tolerated hacks (novelty fuel)
-research_map.md                  living taxonomy across the field
+research_map.md                  taxonomy + primary-source reading list per branch
 ```
 
 ## Eventual split

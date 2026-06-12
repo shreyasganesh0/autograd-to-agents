@@ -1,95 +1,110 @@
-# Tier _ · Phase _._ — <NAME> (scaffold)
+# Tier _ · Phase _._ — <NAME> (requirements brief)
 
-<!-- Fill this when you START the phase, informed by your review of the previous phase.
-     Do not pre-write phases more than 1 ahead. Delete these comments when filled. -->
+<!-- Fill when the phase STARTS, informed by review of the previous phase.
+     Never pre-write more than 1 phase ahead. Delete these comments when filled.
 
-**Deliverable of this phase:** <the one externally verifiable artifact this phase ships>
-**What you'll own afterward:** <one-sentence capability unlock; expanded in "Why this phase exists" below>
+     GENRE RULE (the whole point of this template): this is a CLIENT-STYLE
+     REQUIREMENTS BRIEF read by a principal engineer. It pins down (a) the
+     interface the harness imports, (b) observable behavior, (c) binding
+     constraints, (d) vocabulary + primary sources. It NEVER specifies
+     mechanisms — no algorithms, no data-structure choices, no "do it by
+     X-ing" — and it contains no pep talk. State each fact exactly once.
+     If a sentence tells the engineer HOW rather than WHAT-must-be-true,
+     cut it: discovering the how is the learning. -->
+
+**How to read this.** Client-style requirements brief. The interface, observable
+behavior, and binding constraints below are fixed; every design decision not
+pinned here is deliberately unspecified — designing it is the work. Acceptance
+is `tests/test_<component>.py`, every row PASS. Math is yours, off-repo; this
+project ships code.
+
+**Deliverable:** <the one externally verifiable artifact this phase ships>
 **Tag:** CORE / INFRA / AGENTS    **Calibration:** 🔨 / 🧩 / 📖
-**Ground rule:** spec + validated harness only. No solution code. You design and write every line. Any math is yours to do off-repo; this project ships code, not derivations.
 
-## Why this phase exists (goals, rationale, what carries forward)
+## What this is — and is not
 
-<!-- Detailed motivation. The audience is the owner about to spend days or weeks
-     on this — they deserve to know why it's worth their time, not just "build X."
-     Fill in each subsection substantively; don't punt with one-liners. -->
+<!-- REQUIRED, FIRST. The category of the component (a differentiation engine?
+     an inference server? a benchmark harness?) and explicitly what it is NOT —
+     naming the adjacent thing the engineer is most likely to build by mistake.
+     Close with the one-sentence right-artifact test. Never a one-liner. -->
 
-### The skill you're building
-<the underlying engineering capability this phase develops — phrased as "you'll be the kind of engineer who can debug/design/reason about X". One paragraph.>
+## Context (what the client's system needs this for)
 
-### Why "from scratch" is the right call here
-<what specifically goes opaque if you use the library version. Name the later debugging / design moments that depend on having built this yourself. Bullet list of 3-5 concrete future failure modes is good.>
+<!-- The client's reasons, stated once, concretely: which later tiers/phases
+     consume this, which downstream failures trace back to getting it wrong,
+     which patterns recur (with real cross-references: Tier 2.1, Tier 4.3...).
+     End with the defining risk of the component (silent wrongness? perf cliff?
+     integration rot?) and why the deliverable's shape answers that risk.
+     Bullets over essays. No motivation padding. -->
 
-### What carries forward to later tiers
-<bullets, each naming a future tier/phase and the specific thing from this phase that recurs there. Use real cross-references (Tier 2.1, Tier 4.3, etc.). This is where you justify the order of the curriculum.>
+## Acceptance (the only gate)
 
-### What good looks like
-<bullets describing observable properties of a well-built solution WITHOUT giving the implementation. Things like "your class has small surface area," "you can answer interview-attack question X without running it," "numerical errors are at the floor expected from float64."  4-6 bullets.>
+<!-- REQUIRED. Foreground the validated harness as the CONTINUOUS cross-check:
+     build a part, run the suite, a row flipping SKIP→PASS is proof of the
+     required observable behavior however it was implemented. State:
+     - the run command and pass condition
+     - the independent oracle (finite differences / full recompute /
+       brute-force / reference impl) so the engineer trusts it isn't circular
+     - that only the public surface is inspected (design freedom is real)
+     - tolerances/thresholds AND the expected quality floor (so barely-passing
+       reads as a warning)
+     - pointer to the five-gate validation evidence in harness_notes/ -->
 
-### Why this is the shape of the deliverable
-<one paragraph: why the artifact is what it is (a single .py + harness? a benchmark table? a writeup?). Connect the deliverable shape to the nature of the correctness problem (silent bugs, performance-sensitive, etc.).>
+## Interface requirements (what the harness imports)
 
-## Exam questions this phase targets (build-proven)
-1. <build-proven question — phrased as "implement X such that harness row Y PASSes" or "measure Z and report it">
-2. ...
-
-## Prerequisites — concepts this phase uses
-
-<!-- List every library/vocabulary concept the spec, contract, or harness assumes.
-     Audience: someone who knows Python (or C) but has never touched the relevant
-     library (PyTorch / CUDA / vLLM / MCP / etc.). They should be able to recognize
-     the term and know what role it plays — NOT how to implement it. Implementing
-     it is the build. Group by sub-area; link to authoritative docs.  -->
-
-### <sub-area, e.g. "transformer vocabulary">
-- **`<term>`** — <1-2 sentence definition: what role does it play in the API? Where would a fresh dev encounter it?>
-- **`<term>`** — <...>
-
-### <next sub-area>
-- ...
-
-## The build, in parts (each gated independently by the harness)
-### Part 1 — <name> 🔨
-<the central idea; what the harness rows check>
-
-### Part N — The harness as a published artifact
-<make every row green; write RESULTS.md; publish>
-
-## API contract (what the harness imports)
-
-<!-- For EVERY function/class/method the harness imports, give all of:
+<!-- For EVERY imported name:
      - signature (shapes + dtypes)
-     - **What it computes** — the observable forward behavior (the spec)
-     - **Why it exists** — what role it plays in real systems
-     - **What backward / side effects must do** — the requirement, NOT the recipe
-     - Any non-obvious contract details (mean vs sum, in-place vs return, etc.)
-     A bare signature is not a spec. The owner cannot implement what is not
-     specified. Specifying the FORWARD behavior is not giving away the BUILD —
-     the build is making the forward composable with whatever larger machinery
-     (autograd, KV cache, batching scheduler) the phase demands. -->
+     - **Computes:** observable forward behavior — this is spec, not spoiler
+     - **Role:** where it lives in real systems
+     - **Requirement (observable):** what must be true after a call / what the
+       side effects must produce — phrased as observable outcomes, NEVER as the
+       mechanism that achieves them
+     - **Binding details:** mean vs sum, dtypes, in-place vs return, error modes
+     State explicitly that everything below is the public surface and all
+     internals are private and deliberately unspecified. -->
 
-### <component name>
+### <name>
 
 ```
 <signature with shapes and dtypes>
 ```
 
-- **What it computes:** <observable forward behavior>
-- **Why it exists:** <role in real systems / what it unlocks>
-- **Backward / side-effect requirement:** <what must happen as a result of using it; NOT how>
-- **Critical contract details:** <mean vs sum, in-place vs return, error modes, etc.>
+- **Computes:** <observable forward behavior>
+- **Role:** <role in real systems>
+- **Requirement (observable):** <what must be true; not how>
+- **Binding details:** <the contract details people get wrong>
 
-### <next component>
-...
+## Milestones (each gated independently by the suite)
 
-## Acceptance criteria (phase-level "done")
-1. Harness: all rows PASS, tolerance <bound>.
-2. RESULTS.md published; stranger can rerun.
+1. <part — and which suite rows gate it>
+2. ...
+N. <published artifact: all rows PASS + RESULTS.md>
 
-## Principal-engineer traps (no solutions)
-- <the place people bleed #1>
-- <#2>
+Proves (build-proven exam questions): <1–3, phrased as "implement X such that
+row Y PASSes" / "measure Z and report it">
 
-## What you hand back for review
-1. Implementation + harness table
-2. One sentence per trap: did it bite, how resolved
+## Vocabulary & primary sources
+
+<!-- Every library/vocabulary term the brief or harness assumes, defined at the
+     level of the ROLE it plays in the interface (audience: knows Python/C,
+     never touched the relevant library). Each concept that is part of the
+     learning gets a PRIMARY SOURCE: the paper that introduced it, official
+     docs, or a textbook chapter — the same sources the field cites. NEVER link
+     an implementation of the thing being built; add the standing warning not
+     to read reference implementations until after acceptance. -->
+
+### <sub-area>
+- **`<term>`** — <role-level definition>. Primary source: <paper/docs link>.
+
+## Known failure modes (named, not solved)
+
+<!-- Where implementations of this contract historically go wrong, one bullet
+     each, tied to the suite row that catches it. Name the failure, never the
+     fix. -->
+
+- <failure mode — and the row aimed at it>
+
+## Hand-back for review
+
+1. Implementation + full harness table (+ benchmark numbers where the phase has them)
+2. One sentence per failure mode: did it bite, how resolved
