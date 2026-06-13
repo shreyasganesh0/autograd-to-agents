@@ -33,9 +33,16 @@ literature — every brief anchors its concepts to primary sources.
    terse auto-loaded copy is the local mentor contract.)
 3. The current component's brief (`phase_specs/`), harness (`tests/`), and
    `HARNESS_VALIDATION_PROTOCOL.md` (the five gates).
-4. Only when relevant: `build_plan.md` (the map + order), `BUILD_GUIDE.md`
-   (owner-facing field guide), `capstone_architecture.md` (Tier V only),
-   `research_map.md` (taxonomy + reading list), `gaps_log.md` (novelty fuel).
+4. Only when relevant: `build_plan.md` (the map + order, restructured against the
+   research), `BUILD_GUIDE.md` (owner-facing field guide), `capstone_architecture.md`
+   (Tier V only), `research_map.md` (taxonomy + reading list), `gaps_log.md`
+   (novelty fuel).
+5. The **strategy layer** (why the plan is shaped this way): the local goal dossier
+   (`goal_research.md`) — the cited evidence — and the local rubric
+   (`goal_rubric.md`) — the scorecard, thresholds, dates, and drill protocols.
+   Both are **local-only** (the `.curriculum/` tree is public; these hold personal
+   career-positioning), excluded like the local mentor contract. Committed docs
+   refer to them generically.
 
 Keep context lean: STATUS + the contract always; everything else by name, only
 when the task needs it.

@@ -1,7 +1,14 @@
 # Capstone Architecture — Two Systems, One Contract
 
 **Owner:** Shreyas
-**Status:** Expands v5 §5.2. This is the README/spec for the end-goal project.
+**Status:** Expands v5 §5.2. The spec for Tier V. **Priority note (post-research
+restructure):** this is the most *internally* elegant artifact but the least
+*externally legible* one for hiring (a recruiter reads a merged vLLM PR or a
+kernel-vs-FA2 benchmark faster than a cross-seam RL loop). Per `build_plan.md` it
+is **freezable** — run it only if the application pipeline is still cold after the
+shared core + the four tracks have shipped. The standalone 2.3 engine, the 2.1
+kernels, and the OSS PR are the hiring leads; this is the capstone you build when
+they haven't already landed an offer.
 **Design thesis:** Two independently-excellent systems — an **inference/serving substrate** (infra moat) and a **backend-agnostic agentic tool** (agentic moat) — composed into one product through a **load-bearing standard interface**. Each half stands alone as a portfolio piece; the seam is itself the union artifact. Depth is maximized per half; the accepted tradeoff is effort (~1.7x scope) and an upfront contract commitment.
 
 ---

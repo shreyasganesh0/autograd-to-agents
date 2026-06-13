@@ -21,15 +21,32 @@ how.
 The local pre-write guard hook enforces the code half at the tool layer. Hold me
 to it.
 
+## Two gates per phase (this is the restructure — read it)
+
+A phase is done at **two** gates, not one:
+- **Learning gate** — the harness goes all-green (what you've always done).
+- **Career gate** — you ship a **public, named repo + a benchmark number vs a
+  named strong baseline (cuBLAS / FlashAttention-2 / vLLM / a reference provider)
+  + a measurement write-up.** Every documented career break came from a public,
+  adopted, benchmarked artifact — never a private pile of passing tests. Green
+  with nothing published does not advance you. Why-and-evidence: the local goal
+  dossier; thresholds and dates: the local rubric.
+
 ## The loop (per phase)
 
 1. Say **"scaffold Tier X, Phase Y"** (or "resume" — I read `STATUS.md`). You
-   get: brief + validated harness + acceptance criteria.
+   get: brief + validated harness + acceptance criteria + the phase ceiling.
 2. **Build offline, from a blank file.** Run the suite after each part — unbuilt
    parts SKIP, finished parts flip PASS. This guide + the brief are all you need open.
 3. Stuck? **Run the self-serve checklist below first.**
 4. Come back at a **real trigger** (next section) with code + harness output + numbers.
-5. Iterate to acceptance → I update `STATUS.md` → next phase.
+5. Iterate to the learning gate → I update `STATUS.md`.
+6. **Hit the career gate:** publish the repo + write-up + benchmark. Then **read
+   the reference implementation** (vLLM, llm.c, FlashAttention, faiss) and log a
+   short "what they did differently / what I'd steal" note — the struggle comes
+   first, the reference-reading comes *after* acceptance, never before.
+7. **Respect the ceiling.** Over the phase's time-box → cut scope (drop a stretch
+   item), never extend. Log the cut in `gaps_log.md`.
 
 ## Triggers (when coming back beats fighting on)
 
@@ -50,6 +67,46 @@ to it.
 Lean context when you return: `STATUS.md` + the current phase's files. I'll ask
 for anything else by name.
 
+## The four always-on tracks (run in parallel — the build alone won't get you hired)
+
+The deep-research finding is blunt: building is necessary, not sufficient. The
+break always came from a *public, adopted* artifact plus reputation among
+practitioners — sometimes via an intermediate seat, never from solo curriculum
+completion. So from day one, alongside the build:
+
+1. **Publish** — a named public repo + a "what I measured" write-up per shipped
+   phase (the Dettmers / "Go Brrrr" genre). The private spine stays private; the
+   *artifacts* go public and loud.
+2. **OSS** — work toward a **merged PR in a flagship project** (vLLM / SGLang /
+   PyTorch / llama.cpp / TRL / an RL-env stack). A merged vLLM/SGLang PR is a
+   gated deliverable of 2.3, not a bonus. Start reading the target's issues while
+   you build 2.3.
+3. **Papers** — 2–3/week tied to the active phase, logged in `research_map.md`
+   with a 3-sentence critique + "what I'd extend." That *is* the research-
+   discussion interview round.
+4. **Apply now** — your classical-systems depth already clears the hard
+   requirements for systems / agent-tooling / sandboxing roles (syscalls,
+   allocators, io_uring). Apply to those **in parallel today**; open the
+   inference / RE-RL pipeline when the shared core lands (~month 6). Applying is a
+   track, not the finish line.
+
+## Retention drills (the biggest thing the old plan was missing)
+
+One-and-done phases decay exactly the material interviews probe. These are *more*
+from-scratch building, so they fit the rule — I author the prompts, you do the
+work. Full spec: the local rubric §C.
+
+- **Spaced rebuild** — at ~1 wk / ~1 mo / ~3 mo after each acceptance, a
+  **closed-book, timed micro-rebuild** gated by the same harness (scalar autograd
+  in 90 min; single-head attention fwd+bwd; a KV-cache allocator). Retire it only
+  after **3** clean spaced passes.
+- **Closed-book question bank** — at each review I draw 3–5 questions from *past*
+  phases; you answer from memory **before** any code review.
+- **Interview-mode reps** (weekly from ~month 2) — you explain a past component
+  **aloud** while I attack the edges, and **derive on paper** (attention
+  FLOPs/memory, ZeRO-1 comm volume, paged-KV math). Spoken + paper, never
+  committed.
+
 ## Self-serve when stuck (exhaust before returning)
 
 1. **Re-read the brief's failure-modes section** — your bug is probably named.
@@ -67,37 +124,38 @@ for anything else by name.
 
 ## Phase map (offline compass — a map, not a brief; briefs arrive one phase at a time)
 
-Every phase ships **one** verifiable artifact; no artifact, no "done."
+Every phase ships a **public, benchmarked** artifact; green-but-unpublished is not
+"done." Ceilings are hard — over → cut scope, never extend. Full rationale:
+`build_plan.md`.
 
-| Phase | Build | Ship (the one artifact) |
+**Shared core (do only this until offers stabilize):**
+
+| Phase | Ceiling | Ship (public + benchmarked vs a named baseline) |
 |---|---|---|
-| **0.1** Autograd | scalar → tensor reverse-mode autodiff → NN primitives | gradient-check suite + `RESULTS.md` *(current)* |
-| **1.1** Transformer | BPE → attention → GPT block → train loop → load GPT-2 | coherent generation from real weights + tok/s |
-| **1.2** Architecture zoo | RoPE · GQA/MQA · RMSNorm/SwiGLU · MoE routing | attn-variant writeup + KV deltas + RoPE failure curve |
-| **2.1** GPU / kernels | naive → tiled matmul → fused softmax → flash-style kernel | kernel throughput vs cuBLAS + roofline |
-| **2.2** Distributed training | data-parallel all-reduce → ZeRO-1 → tensor-parallel | scaling curve + memory-vs-sharding table |
-| **2.3** Inference systems | KV cache → server → continuous batching → paged KV | server + throughput/latency table → **System A** |
-| **3.1** Data + pretraining | dedup (MinHash/LSH) → tokenizer → pretrain small model | loss curve matching a public reference |
-| **3.2** Post-training & RL | SFT → reasoning → DPO → PPO/GRPO on verifiable reward | before/after eval curves + credit-assignment writeup |
-| **3.3** Interp & safety | logit lens + probing → train an SAE | SAE writeup surfacing interpretable features |
-| **4.1** Agent harness | ReAct → tool dispatch → context engineering → sub-agents | zero-framework harness over an over-context task → **System B** |
-| **4.2** Memory & retrieval | brute-force vector search → HNSW → RAG → episodic memory | recall@k/latency + retrieval eval + agent-success A/B |
-| **4.3** Evals | task spec → sandboxed scoring → judge+calibration → CI gating | rerunnable scorecard *(lead artifact)* |
-| **5.0** Capstone contract | OpenAI-compatible interface + one deliberate leak; stub both ends | contract spec + conformance harness |
-| **5.1** Production layer | MCP server/client · observability · guardrails · orchestration | deployed MCP system with observability |
-| **5.2** Capstone integration | A + B + the seam, integrated continuously | substitution benchmark + cross-seam RL curve |
-| **6.x** Novelty | attack a gap from `gaps_log.md` (systems × RL × agents) | falsifiable novel result + reproducible numbers |
+| **0.1** Autograd | 2 wk | gradient-check suite + `RESULTS.md` *(current)* — don't gold-plate scalar |
+| **1.1** Transformer | 2 wk | generation from GPT-2 weights + tok/s |
+| **1.2** Architecture zoo | 2 wk | attn-variant writeup + KV deltas + RoPE failure curve |
+| **2.3** Inference systems | 8 wk | server (batching+paged KV+**quant**+**spec-decode**) vs **vLLM** + a **merged vLLM/SGLang PR** → System A — *flagship; library kernels allowed* |
+| **2.1** Kernels *(compressed)* | 6 wk | kernel vs **cuBLAS/FA2** + roofline + Triton port; swap into 2.3 — *promoted from tail* |
+| **2.2** Distributed *(thin)* | 2 wk | 2–4-GPU all-reduce scaling data point |
+| **4.3** Evals *(thin)* | 2 wk | thin rerunnable scorecard on **real sandbox prims** (ns/seccomp/cgroups) |
+| **3.2** Post-training & RL | 8 wk | before/after eval + credit-assignment writeup (async rollout; your DQN/bandit bridge) |
 
-**Order (execute this, not row order):** shared core `0.1 → 1.1 → 1.2 → 2.3 →
-thin 4.3 → 3.2` — until job offers stabilize, run only this. Then the tail the
-pipeline heats up (infra: `2.1 → 2.2 → 3.1 → 3.3`; agents: `4.1 → 4.2 →
-4.3-full → 5.1`). Then capstone contract-first `5.0 → 5.1 → 5.2`. Then 6.x, fed
-by the gaps log.
+**Tail (only as the pipeline heats up):** full 2.2 (ZeRO-1 → TP) · 3.1
+(≤2-wk llm.c repro or **drop**) · 3.3 (**📖 read-only**) · 4.1 agent harness →
+System B · 4.2 (**📖 read-only**) · 4.3-full · capstone 5.0→5.1→5.2
+(**freeze if an offer/seat lands first**) · 6.x novelty (**deprioritized**).
 
-**Hard dependencies:** `0.1 → 1.1 → (1.2, 2.x)` · `2.1` precedes `2.3` · `2.2`
-enables `3.1` · `3.2` consumes `4.3` as reward oracle (thin eval inside 4.1,
-expanded in 4.3) · capstone consumes `2.3 + 4.1–4.3 + 3.2`. Systems A and B
-graduate to standalone repos at the 2.3 / 4.1 boundaries.
+**Order (execute this):** `0.1 → 1.1 → 1.2 → 2.3 → 2.1-compressed → thin-2.2 →
+thin-4.3 → 3.2`, plus the four always-on tracks. **Application trigger = ~month 6
+(core shipped), not plan completion.**
+
+**Hard dependencies:** `0.1 → 1.1 → (1.2, 2.x)` · **2.3 does NOT require 2.1**
+(library kernels permitted; the old "2.1 precedes 2.3" line was wrong, removed) ·
+2.1's own kernel optionally swaps into 2.3 after · `2.2` enables full `3.1` ·
+`3.2` consumes `4.3` as reward oracle (thin eval in core, expanded later) ·
+capstone consumes `2.3 + 4.1 + 4.3 + 3.2`. Systems A and B graduate to standalone
+repos at the 2.3 / 4.1 boundaries.
 
 ## Where state lives (resuming cold)
 
@@ -115,14 +173,16 @@ contract; full manual: `CONTRACT.md`.
 
 ## Non-negotiables
 
-1. **One verifiable artifact per phase, before advancing.** A stranger must be
-   able to rerun it. Finished-and-benchmarked beats ambitious-and-unfinished.
+1. **Two gates per phase** — harness green (learning) AND a public, benchmarked
+   artifact + write-up (career). A stranger must be able to rerun it; a recruiter
+   must be able to find it.
 2. **No harness is trusted until validated** (passed a correct ref AND caught a
    broken one).
-3. **Shared core first.**
-4. **Capstone is contract-first** — stubs day one, integrate continuously, never
-   big-bang.
-5. **`gaps_log.md` runs from day one.** Started late, it produces nothing.
+3. **Shared core first; the four tracks run in parallel from day one.**
+4. **Ceilings are hard** — over → cut scope, never extend; log the cut.
+5. **Capstone is contract-first** — stubs day one, integrate continuously, never
+   big-bang — *and* freezable if an offer/seat lands first.
+6. **`gaps_log.md` runs from day one.** Started late, it produces nothing.
 
 ---
 

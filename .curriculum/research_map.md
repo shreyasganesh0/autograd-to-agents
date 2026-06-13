@@ -9,6 +9,13 @@ log every stated-but-unproven assumption you notice into `gaps_log.md`. Add what
 you read; replace anchors with better ones as you find them. **Never read
 reference *implementations* of a component before its phase is accepted.**
 
+**Paper cadence (an always-on track, not passive reading).** 2–3 papers/week
+tied to the active phase. Log each here with a 3-sentence critique +
+"what I'd extend." This is deliberate prep for the frontier-lab research-discussion
+interview round (a paper sent 2–3 days before; discuss contribution / method /
+limits / extensions) — the exact format. The log itself is the evidence of
+fluency.
+
 ## Foundations (Tier 0)
 - Baydin, Pearlmutter, Radul, Siskind — *Automatic Differentiation in ML: a Survey* (JMLR 2018) — https://arxiv.org/abs/1502.05767
 - Ba, Kiros, Hinton — *Layer Normalization* (2016) — https://arxiv.org/abs/1607.06450
@@ -32,7 +39,10 @@ reference *implementations* of a component before its phase is accepted.**
 ## Inference (batching, paging, speculation, quantization, disaggregation) — Tier 2.3
 - Yu et al. — *Orca: continuous batching* (OSDI 2022) — https://www.usenix.org/conference/osdi22/presentation/yu
 - Kwon et al. — *PagedAttention / vLLM* (SOSP 2023) — https://arxiv.org/abs/2309.06180
-- Leviathan et al. — *Speculative Decoding* (2022) — https://arxiv.org/abs/2211.17192
+- Leviathan et al. — *Speculative Decoding* (2022) — https://arxiv.org/abs/2211.17192 · Chen et al. — *Accelerating LLM Decoding with Speculative Sampling* (2023) — https://arxiv.org/abs/2302.01318
+- Dettmers et al. — *LLM.int8()* (2022) — https://arxiv.org/abs/2208.07339 · Frantar et al. — *GPTQ* (2022) — https://arxiv.org/abs/2210.17323 · Lin et al. — *AWQ* (2023) — https://arxiv.org/abs/2306.00978  *(quantization is a named basic qualification on inference postings — not optional)*
+- Zheng et al. — *SGLang / RadixAttention* (2023) — https://arxiv.org/abs/2312.07104  *(read the source post-acceptance; labs require framework familiarity)*
+- gpt-fast (PyTorch, 2023) — https://pytorch.org/blog/accelerating-generative-ai-2/ · nano-vllm — https://github.com/GeeeekExplorer/nano-vllm  *(existence proofs: vLLM-class serving with library kernels, no custom CUDA)*
 
 ## Post-training (SFT, preference opt, RL, reasoning, distillation, PRMs) — Tier 3.2
 - Ouyang et al. — *InstructGPT* (RLHF, 2022) — https://arxiv.org/abs/2203.02155
